@@ -11,9 +11,13 @@
 runProgram :: FilePath -> IO ()
 {- execute program, prints rv register on screen in case of termination -}
 runProgram file = interp (loadFromFile file)
+-- needs to return Rv upon crash
 
 interp :: Program -> Int 
 {- Runs the entire program, returns value in register rv -}
+interp prog | prog == [] = d !! index Rv
+            | prog /= [] = defInstruction prog[Index]
+            | prog /= [] = increment dataList
 
 
 -- ACQUIRING DATA --
@@ -111,10 +115,20 @@ index Index = 18
 
 whoops :: IO ()
 {- raises error if attempt at non-existing memory -}
-whoops = error "Whoops! You're not allowed to go there."
+whoops = error "Whoops! You're not allowed to go there.
+                The Rv register will be printed."
 
 increment :: [a] -> [a]
 increment d = replace d (index Index, ((d !! index Index) + 1))
+
+validInt :: Int -> Bool
+validInt arg | arg > 1 && arg < 19 = True
+             | otherwise           = False
+
+validReg :: Reg -> Bool
+validReg arg | (d !! index arg1) > 1 &&
+               (d !! index arg1) < 19   = True
+             | otherwise                = False
 
 
 -- INTERACTING WITH DATA --
@@ -173,7 +187,10 @@ defInstruction (Jr arg1)            = jumping (Jr arg1)
 
 
 move :: Instructions -> [a] -> [a]
-{- wherein d is the given list (dataList) -}
+{- 
+ wherein d is the given list (dataList) 
+ and the result is in the last listed register
+-}
 move (Mov arg1 arg2)  d     = replace d (index arg2,
                                       d !! (index arg1))
 move (Movc arg1 arg2) d     = replace d (index arg1, arg2)
@@ -181,8 +198,8 @@ move (Movc arg1 arg2) d     = replace d (index arg1, arg2)
 
 arithmetic :: Intructions -> [a] -> [a]
 {-
-instructions put results in the last listed register,
-i.e arg3 for Add, but arg1 for Addc.
+ instructions put results in the last listed register,
+ i.e arg3 for Add, but arg1 for Addc.
 -}
 arithmetic (Add arg1 arg2 arg3) d = replace d (index arg3,
                                            (d !! (index arg1) +
@@ -214,17 +231,23 @@ arithmetic (Divc arg1 arg2)     d = replace d (index arg1,
 
 
 jumping :: Instructions -> [a] -> [a]
-jumping (Jmp arg1) d      = replace d (index Index, arg1)
+jumping (Jmp arg1) d      = if validInt arg1
+                             then replace d (index Index, arg1)
+                            else whoops
 
-jumping (Jal arg1) d      = replace (replace d (index Lnk, 
+jumping (Jal arg1) d      = if validInt arg1
+                             then replace (replace d (index Lnk, 
                                      (d !! index Index)))
-                                    (index Index, arg1)
+                                     (index Index, arg1)
+                            else whoops
 
-jumping (Jif arg1 arg2) d = if d !! index arg2 /= 0
-                                then jumping (Jmp arg1) d
-                                else increment d
+jumping (Jif arg1 arg2) d = if validInt arg1 && validReg arg2
+                               && d !! index arg2 /= 0
+                             then jumping (Jmp arg1) d
+                            else if validInt arg1 || validReg arg2
+                             then whoops
+                            else increment d
 
-jumping (Jr arg1)  d      = if (d !! index arg1) > 1 &&
-                               (d !! index arg1) < 19
+jumping (Jr arg1)  d      = if validReg arg1
                                 then jumping (Jmp (d !! index arg1)) d
                                 else whoops  -- raise error

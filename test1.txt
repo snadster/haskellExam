@@ -1,0 +1,13 @@
+Movc R2 10
+Movc R0 0
+Movc R1 1
+Add R0 R1 R0
+Jal 8
+Subc R2 1
+Jif R2 3
+Jmp 12
+Mov R0 R3
+Mov R1 R0
+Mov R3 R1
+Jr Lnk
+Mov R0 Rv

@@ -200,6 +200,9 @@ QUESTIONS FOR ROBIN
 - can i format my code-comments however i like?
   is there a convention for annotating my functions?
 
+- should i print rv to the terminal upon completion
+  or only upon crashing?
+
 
 
 REPORT 
@@ -209,3 +212,51 @@ or another but the task specified completion
 using the simplest possible methods, or,
 the methods deemed easiest by the taskee,
 and this was that.
+
+
+TODO
+runProgram
+    runs the program using interp
+    and loadFromFile
+    prints rv incase of termination.
+        how to check for termination?
+
+interp
+    runs program and returns value in rv
+    at the end of program
+
+CHECK FOR VALIDREG AND VALIDINT
+
+how a prograim works:
+1. we load the file, parse it to a readbale format.
+    loadFromFile, parsing
+2. we specify registers full of 0's
+    datalist 
+3. we specify our types:
+    our Program, which is a list of instructions.
+    data instructions, which is case-matching
+    instructions and Registers.
+    data Reg which casematches our registers with 
+    their given names.
+4. we index our registers, giving each type Reg an int.
+    index
+5. we DONT run the program
+    doing this requires:
+    starting the execution of instructions
+        we have list of instructions
+        as an output from loadFromFile (file)
+        we need to specify starting at line
+        0, and reading the next instruction.
+        for this i have the increment function.
+        what we need is this:
+        1. read instruction 
+            i do this
+        2. execute instructions using defInstruction
+            hopefully do this in interp
+        3. increment our index counter
+            hopefully do this in interp
+        4. return value in rv 
+            both upon completion and crashing.
+6. am i supposed to print rv or just return it?
+7. done.
+
