@@ -238,7 +238,7 @@ jumping :: Instructions -> [a] -> [a]
 jumping (Jmp arg1) d      = replace d (index Index, arg1)
 
 jumping (Jal arg1) d      = replace (replace d (index Lnk, 
-                                     (d !! index Index)))
+                                     (d !! index Index) - 1))
                                      (index Index, arg1)
 
 jumping (Jif arg1 arg2) d = if (d !! index arg2) /= 0
