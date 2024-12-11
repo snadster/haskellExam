@@ -1,6 +1,16 @@
+module Exam where
+    -- which will make the file TestSuite available
+
 {-******************************************
 *   Exam.hs                    05.01.25    *
 *        Author: Sandra K. Johansen        *
+*                                          *
+*   Requirements:                          *
+*   All registers and instructions must    *
+*   be capitalized, i.e have the first     *
+*   letter capitalized, fx:                *
+*               mov = Mov                  *
+*               r1  = R1                   *
 *******************************************-}
 
 --____________--
@@ -13,6 +23,7 @@ runProgram :: FilePath -> IO ()
 runProgram file = interp (loadFromFile file)
 -- needs to return Rv upon crash
 
+
 interp :: Program -> Int 
 {- Runs the entire program, returns value in register rv -}
 interp prog = runReg prog dataList
@@ -24,7 +35,7 @@ execute each instruction
 needs program to find line, dataList, returns integer
 -}
 runReg prog d = if prog == []
-                  then replace d (index Rv, runReg prog d) 
+                  then updateVal d (index Rv, runReg prog d) 
               |   else let instruction = prog !! (d !! (index Index))
                         in runReg prog (runInstruction instruction (increment d))
               
@@ -61,8 +72,6 @@ data Instructions =   Mov  Reg Reg
                     | Jr   Reg
     deriving (Read, Show)
 
-type Program = [Instructions]
-
 data Reg =    Rv        -- return value
             | Lnk       -- prior index value
             | R0
@@ -85,6 +94,7 @@ data Reg =    Rv        -- return value
             | Index     -- current line of program
     deriving (Read, Show)
 
+type Program = [Instructions]
 
 --___________--
 -- FUNCTIONS --
@@ -123,11 +133,15 @@ index Index = 18
 
 
 increment :: [a] -> [a]
-increment d = replace d (index Index, ((d !! index Index) + 1))
+{- inrements the Index counter -}
+increment d = updateVal d (index Index, 
+                          ((d !! index Index) + 1))
+
 
 validInt :: Int -> Bool
 validInt arg | arg > 2 && arg < 18 = True
              | otherwise           = False
+
 
 validReg :: Reg -> Bool
 validReg arg | (d !! index arg1) > 1 &&
@@ -151,15 +165,14 @@ parsing content = [read x | x <- info]
 -- with [read x | x <- info] haskell by itself can find and read the types
 
 
-replace ::[a] -> (Int, a) -> [a]
+updateVal ::[a] -> (Int, a) -> [a]
 {- 
- found the basis for this function online. 
- needed something to change a register
- takes list, index, and what it needs to put there.
+ change a register via indexing;
+ takes: dataList (index, what to put there).
 -} 
-replace [] _        = []
-replace (_:xs) (0,a) = a:xs
-replace (x:xs) (n,a) = x: replace xs (n-1, a)
+updateVal [] _        = []
+updateVal (_:xs) (0,a) = a:xs
+updateVal (x:xs) (n,a) = x: updateVal xs ((n-1), a)
 
 
 runInstruction :: Instructions -> [a] -> [a]
@@ -195,9 +208,9 @@ move :: Instructions -> [a] -> [a]
  wherein d is the given list (dataList) 
  and the result is in the last listed register
 -}
-move (Mov arg1 arg2)  d     = replace d (index arg2,
+move (Mov arg1 arg2)  d     = updateVal d (index arg2,
                                       d !! (index arg1))
-move (Movc arg1 arg2) d     = replace d (index arg1, arg2)
+move (Movc arg1 arg2) d     = updateVal d (index arg1, arg2)
 
 
 arithmetic :: Intructions -> [a] -> [a]
@@ -205,39 +218,39 @@ arithmetic :: Intructions -> [a] -> [a]
  instructions put results in the last listed register,
  i.e arg3 for Add, but arg1 for Addc.
 -}
-arithmetic (Add arg1 arg2 arg3) d = replace d (index arg3,
+arithmetic (Add arg1 arg2 arg3) d = updateVal d (index arg3,
                                            (d !! (index arg1) +
                                            (d !! (index arg2))))
-arithmetic (Addc arg1 arg2)     d = replace d (index arg1,
+arithmetic (Addc arg1 arg2)     d = updateVal d (index arg1,
                                            (d !! (index arg1) + 
                                             arg2))
 
-arithmetic (Sub arg1 arg2 arg3) d = replace d (index arg3,
+arithmetic (Sub arg1 arg2 arg3) d = updateVal d (index arg3,
                                            (d !! (index arg1) -
                                            (d !! (index arg2))))
-arithmetic (Subc arg1 arg2)     d = replace d (index arg1,
+arithmetic (Subc arg1 arg2)     d = updateVal d (index arg1,
                                            (d !! (index arg1) - 
                                             arg2))
 
-arithmetic (Mul arg1 arg2 arg3) d = replace d (index arg3,
+arithmetic (Mul arg1 arg2 arg3) d = updateVal d (index arg3,
                                            (d !! (index arg1) *
                                            (d !! (index arg2))))
-arithmetic (Mulc arg1 arg2)     d = replace d (index arg1,
+arithmetic (Mulc arg1 arg2)     d = updateVal d (index arg1,
                                            (d !! (index arg1) * 
                                             arg2))
 
-arithmetic (Div arg1 arg2 arg3) d = replace d (index arg3,
+arithmetic (Div arg1 arg2 arg3) d = updateVal d (index arg3,
                                            (d !! (index arg1) `div`
                                            (d !! (index arg2))))
-arithmetic (Divc arg1 arg2)     d = replace d (index arg1,
+arithmetic (Divc arg1 arg2)     d = updateVal d (index arg1,
                                            (d !! (index arg1) `div` 
                                             arg2))
 
 
 jumping :: Instructions -> [a] -> [a]
-jumping (Jmp arg1) d      = replace d (index Index, arg1)
+jumping (Jmp arg1) d      = updateVal d (index Index, arg1)
 
-jumping (Jal arg1) d      = replace (replace d (index Lnk, 
+jumping (Jal arg1) d      = updateVal (updateVal d (index Lnk, 
                                      (d !! index Index) - 1))
                                      (index Index, arg1)
 
@@ -257,4 +270,14 @@ realized I can just let the program crash and burn if undefined behaviour.
     {- raises error if attempt at non-existing memory -}
     whoops = error "Whoops! You're not allowed to go there.
                     The Rv register will be printed."
+
+    validInt :: Int -> Bool
+    validInt arg | arg > 2 && arg < 18 = True
+                 | otherwise           = False
+
+    validReg :: Reg -> Bool
+    validReg arg | (d !! index arg1) > 1 &&
+                   (d !! index arg1) < 19   = True
+                 | otherwise                = False
+
 -}

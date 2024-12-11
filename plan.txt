@@ -192,18 +192,82 @@ QUESTIONS FOR ROBIN
     - im using dataypes which need to be capitalized and matching on those, so 
       would i need to write a function to capitalize the first letter of every
       sequence of letters, or can i just spcify an input?
+      yes
 
 - i needed a very specific function and found a well written one online, which i
   then based, almost entirely, one of my functions on. Am i allowed to essentially
   copy like that?
+  no, gotta write my own.
+    (or at least not tell him i took it from somewhere)
+        rename it, change it a bit just to look different.
 
 - can i format my code-comments however i like?
   is there a convention for annotating my functions?
+    up to me
 
 - should i print rv to the terminal upon completion
   or only upon crashing?
+    always print.
+     (wants to see 55 in the example)
 
 
+ANSWERS
+dont need to secify behaviou, can just let it crash on its own.
+Jal: stores location in lnk, but store location + 1 to avoid infinite loop.
+    ignore jal example.
+Jmp: jumps to the line specified and runs the current
+64 bit machine.
+
+important:
+idiomatic style, , performance
+idiomatic style:
+    write and use pure functions; avoid IO as much as possible
+
+    use functions that are as general as possible, e.g. use traverse instead of mapM
+
+    use pattern matching instead of equality checks
+
+    use guards instead of if-then-else expressions
+
+    parse, don't validate; avoid boolean blindness
+
+    prefer where over let
+
+    make your functions as polymorphic as possible and get theorems for free
+
+    write type signatures for all top-level definitions
+
+    employ algebra-driven design and denotational design (basically the same thing)
+
+    use dumb reusable data (the whole talk is interesting, but in particular look at 20:27-29:00)
+
+    make your intent clear in your types and use types that are as precise as possible, e.g. use natural numbers and not integers if you are talking about the length of a list (there are no lists with negative length)
+
+    write total functional programs; avoid partial functions
+
+    use combinators like map and foldr instead of manual recursion
+
+
+have to write functions that work on my program
+test suite: (in different file)
+a program he can run which exercises my program in some way.
+cover ALL if the if then else, guards, and branches of the
+program to see they behave as specified.
+fx write programs which tests specific things for each option.
+example:
+
+reverse' :: [a] -> [a]
+reverse' []     = []
+reverse' (x:xs) = reverse xs ++ [x]
+
+to test reverse', we have two branches:
+empty list input, or non-empty list input.
+here, at least two tests are needed.
+
+test1 = reverse' [] :: [Integer] == []
+test2 = reverse' [1,2,3] == [3,2,1]
+
+reversetestsuite = and [t1, t2]
 
 REPORT 
 hereunder we note many repititions,
@@ -212,6 +276,18 @@ or another but the task specified completion
 using the simplest possible methods, or,
 the methods deemed easiest by the taskee,
 and this was that.
+
+document choice in regards to jal or jr,
+    i.e wether you increase before saving value,
+    or jump to value +1
+
+write about idiomatic style, and where it falls short.
+
+how much detail?
+    up to us. brief report, 2-3 pages
+    dont only describe what the code does (he can read it)
+    mention if unconventional way, nice, bad way, obvious way etc.
+    but dont describe what, only how or why.
 
 
 TODO
@@ -257,6 +333,8 @@ how a prograim works:
             hopefully do this in interp
         4. return value in rv 
             both upon completion and crashing.
-6. am i supposed to print rv or just return it?
-7. done.
+6. print rv upon completion
+7. testSuite segment.
+    normally in seperate file
+8. done.
 
