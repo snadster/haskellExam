@@ -4,7 +4,7 @@ Movc R1 1
 Add R0 R1 R0
 Jal 8
 Subc R2 1
-Jif R2 3
+Jif 3 R2
 Jmp 12
 Mov R0 R3
 Mov R1 R0
