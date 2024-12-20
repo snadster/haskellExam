@@ -1,3 +1,0 @@
-Addc R0 1
-Add R1 R0 R1
-Jmp 0

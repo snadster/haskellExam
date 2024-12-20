@@ -5,12 +5,23 @@ module Exam where
 *   Exam.hs                    05.01.25    *
 *        Author: Sandra K. Johansen        *
 *                                          *
-*   Requirements:                          *
+*   Specifications:                        *
 *   All registers and instructions must    *
 *   be capitalized, i.e have the first     *
 *   letter capitalized, fx:                *
 *               mov = Mov                  *
 *               r1  = R1                   *
+*   Furthermore, each instruction which    *
+*   places information in a register will  *
+*   place it in the last listed register.  *
+*   i.e. "Add R1 R2 R3" places the result  *
+*   in R3.                                 *
+*                                          *
+*   Information:                           *
+*   The text file "test1.txt" holds the    *
+*   program example given in the exam      *
+*   description, altered to fit the        *
+*   requirements.                          *
 *******************************************-}
 
 --____________--
@@ -109,7 +120,7 @@ index :: Reg -> Int
 {-
  sets numbers for each Reg;
  index into dataList by
- dataList !! index R2
+ dataList !! index <register name>
 -}
 index Rv    = 0
 index Lnk   = 1
