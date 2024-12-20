@@ -280,6 +280,7 @@ and this was that.
 document choice in regards to jal or jr,
     i.e wether you increase before saving value,
     or jump to value +1
+    (increase before saving in my case)
 
 write about idiomatic style, and where it falls short.
 
@@ -288,6 +289,10 @@ how much detail?
     dont only describe what the code does (he can read it)
     mention if unconventional way, nice, bad way, obvious way etc.
     but dont describe what, only how or why.
+
+specifically, write about why you split it into smaller functions
+with the way you read instructions
+(you did this for readability and overview)
 
 
 TODO
