@@ -51,6 +51,7 @@ runJmp :: Int
 runJmp  = interp [Addc R0 2, Addc R1 1, Jmp 4, 
                   Mul R0 R1 R0, Sub R0 R1 R0, Mov R0 Rv]
 
+-- exception; Jal prints 2 if true, as it increases before storing
 runJal :: Int
 runJal  = interp [Movc R0 10, Jal 2, Mov Lnk Rv]
 

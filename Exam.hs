@@ -43,12 +43,12 @@ interp prog = runReg prog dataList
 runReg :: Program -> [Int] -> Int
 {- 
 execute each instruction 
-needs program to find line, dataList, returns integer
+needs program, dataList, and returns integer
 -}
 runReg prog d = if length prog <= d !! index Index
                   then d !! index Rv
                   else let instruction = prog !! (d !! index Index)
-                        in runReg prog (runInstruction instruction (increment d))
+                        in runReg prog (findInstruction instruction (increment d))
               
 
 -- ACQUIRING DATA --
@@ -65,7 +65,7 @@ loadFromFile file = do content <- readFile file
 --  TYPES  --
 --_________--
                     -- moving data
-data Instructions =   Mov  Reg Reg
+data Instruction =   Mov  Reg Reg
                     | Movc Reg Int
                     -- arithmetic
                     | Add  Reg Reg Reg
@@ -104,7 +104,7 @@ data Reg =    Rv        -- return value
             | Index     -- current line of program
     deriving (Read, Show)
 
-type Program = [Instructions]
+type Program = [Instruction]
 
 --___________--
 -- FUNCTIONS --
@@ -152,7 +152,7 @@ increment d = updateVal d (index Index,
 -- INTERACTING WITH DATA --
 parsing :: String -> Program
 {- 
- convert String from loadFile into a list of Instructions 
+ convert String from loadFile into a list of Instruction 
  now the data is in this format:
  info = ["Movc R4 R2", "Sub R3 R5"]
 -}
@@ -170,7 +170,7 @@ updateVal (_:xs) (0,a) = a:xs
 updateVal (x:xs) (n,a) = x:updateVal xs (n-1, a)
 
 
-runInstruction :: Instructions -> [Int] -> [Int]
+findInstruction :: Instruction -> [Int] -> [Int]
 {-
  calls the given function when it meets
  something it recognizes.
@@ -178,27 +178,27 @@ runInstruction :: Instructions -> [Int] -> [Int]
 -}
 
 -- move --
-runInstruction (Mov  arg1 arg2)      = move (Mov  arg1 arg2)
-runInstruction (Movc arg1 arg2)      = move (Movc arg1 arg2)
+findInstruction (Mov  arg1 arg2)      = move (Mov  arg1 arg2)
+findInstruction (Movc arg1 arg2)      = move (Movc arg1 arg2)
 
 -- arithmetic --
-runInstruction (Add  arg1 arg2 arg3) = arithmetic (Add  arg1 arg2 arg3)
-runInstruction (Addc arg1 arg2)      = arithmetic (Addc arg1 arg2)
-runInstruction (Sub  arg1 arg2 arg3) = arithmetic (Sub  arg1 arg2 arg3)
-runInstruction (Subc arg1 arg2)      = arithmetic (Subc arg1 arg2)
-runInstruction (Mul  arg1 arg2 arg3) = arithmetic (Mul  arg1 arg2 arg3)
-runInstruction (Mulc arg1 arg2)      = arithmetic (Mulc arg1 arg2)
-runInstruction (Div  arg1 arg2 arg3) = arithmetic (Div  arg1 arg2 arg3)
-runInstruction (Divc arg1 arg2)      = arithmetic (Divc arg1 arg2)
+findInstruction (Add  arg1 arg2 arg3) = arithmetic (Add  arg1 arg2 arg3)
+findInstruction (Addc arg1 arg2)      = arithmetic (Addc arg1 arg2)
+findInstruction (Sub  arg1 arg2 arg3) = arithmetic (Sub  arg1 arg2 arg3)
+findInstruction (Subc arg1 arg2)      = arithmetic (Subc arg1 arg2)
+findInstruction (Mul  arg1 arg2 arg3) = arithmetic (Mul  arg1 arg2 arg3)
+findInstruction (Mulc arg1 arg2)      = arithmetic (Mulc arg1 arg2)
+findInstruction (Div  arg1 arg2 arg3) = arithmetic (Div  arg1 arg2 arg3)
+findInstruction (Divc arg1 arg2)      = arithmetic (Divc arg1 arg2)
 
 -- jumping --
-runInstruction (Jmp  arg1)           = jumping (Jmp arg1)
-runInstruction (Jal  arg1)           = jumping (Jal arg1)
-runInstruction (Jif  arg1 arg2)      = jumping (Jif arg1 arg2)
-runInstruction (Jr   arg1)           = jumping (Jr  arg1)
+findInstruction (Jmp  arg1)           = jumping (Jmp arg1)
+findInstruction (Jal  arg1)           = jumping (Jal arg1)
+findInstruction (Jif  arg1 arg2)      = jumping (Jif arg1 arg2)
+findInstruction (Jr   arg1)           = jumping (Jr  arg1)
 
 
-move :: Instructions -> [Int] -> [Int]
+move :: Instruction -> [Int] -> [Int]
 {- 
  wherein d is the given list (dataList) 
  and the result is in the last listed register
@@ -208,7 +208,7 @@ move (Mov  arg1 arg2) d     = updateVal d (index arg2,
 move (Movc arg1 arg2) d     = updateVal d (index arg1, arg2)
 
 
-arithmetic :: Instructions -> [Int] -> [Int]
+arithmetic :: Instruction -> [Int] -> [Int]
 {-
  instructions put results in the last listed register,
  i.e arg3 for Add, but arg1 for Addc.
@@ -246,7 +246,7 @@ arithmetic (Divc arg1 arg2)      d = updateVal d (index arg1,
                                                   arg2)
 
 
-jumping :: Instructions -> [Int] -> [Int]
+jumping :: Instruction -> [Int] -> [Int]
 jumping (Jmp arg1)      d = updateVal d (index Index, arg1)
 
 jumping (Jal arg1)      d = updateVal (updateVal d (index Lnk, 
