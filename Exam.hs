@@ -1,5 +1,4 @@
 module Exam where
-    -- which will make the file TestSuite available
 
 {-******************************************
 *   Exam.hs                    05.01.25    *
@@ -15,7 +14,8 @@ module Exam where
 *   places information in a register will  *
 *   place it in the last listed register.  *
 *   i.e. "Add R1 R2 R3" places the result  *
-*   in R3.                                 *
+*   in R3, while "Addc R1 5" places 5 in   *
+*   R1.                                    *
 *                                          *
 *   Information:                           *
 *   The text file "test1.txt" holds the    *
@@ -83,6 +83,7 @@ data Instruction =   Mov  Reg Reg
                     | Jr   Reg
     deriving (Read, Show)
 
+
 data Reg =    Rv        -- return value
             | Lnk       -- prior index value
             | R0
@@ -104,7 +105,9 @@ data Reg =    Rv        -- return value
             | Index     -- current line of program
     deriving (Read, Show)
 
+
 type Program = [Instruction]
+
 
 --___________--
 -- FUNCTIONS --
